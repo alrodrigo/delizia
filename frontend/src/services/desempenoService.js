@@ -1,0 +1,65 @@
+import axios from 'axios';
+import { axiosInstance } from './authService';
+
+const API_ENDPOINT = '/desempenos';
+
+const desempenoService = {
+  getAll: async (params = {}) => {
+    try {
+      const response = await axiosInstance.get(API_ENDPOINT, { params });
+      return response.data;
+    } catch (error) {
+      throw error.response ? error.response.data : error;
+    }
+  },
+  
+  getById: async (id) => {
+    try {
+      const response = await axiosInstance.get(`${API_ENDPOINT}/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response ? error.response.data : error;
+    }
+  },
+  
+  getByEmpleado: async (empleadoId) => {
+    try {
+      const response = await axiosInstance.get(API_ENDPOINT, { 
+        params: { empleadoId } 
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error en getByEmpleado:', error);
+      throw error.response ? error.response.data : error;
+    }
+  },
+  
+  create: async (desempeno) => {
+    try {
+      const response = await axiosInstance.post(API_ENDPOINT, desempeno);
+      return response.data;
+    } catch (error) {
+      throw error.response ? error.response.data : error;
+    }
+  },
+  
+  update: async (id, desempeno) => {
+    try {
+      const response = await axiosInstance.put(`${API_ENDPOINT}/${id}`, desempeno);
+      return response.data;
+    } catch (error) {
+      throw error.response ? error.response.data : error;
+    }
+  },
+  
+  delete: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`${API_ENDPOINT}/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response ? error.response.data : error;
+    }
+  }
+};
+
+export default desempenoService;
