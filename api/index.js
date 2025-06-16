@@ -14,9 +14,15 @@ export default async function handler(req, res) {
   console.log('API llamada:', req.method, req.url);
   console.log('Body:', req.body);
 
+  // Extraer la ruta desde el query de Vercel
+  const urlPath = req.url || '/';
+  const cleanPath = urlPath.startsWith('/') ? urlPath : '/' + urlPath;
+  
+  console.log('Clean path:', cleanPath);
+
   try {
     // Ruta raíz - test
-    if (req.method === 'GET' && req.url === '/') {
+    if (req.method === 'GET' && (cleanPath === '/' || cleanPath === '')) {
       return res.json({ 
         message: 'API de control de personal Delizia funcionando',
         timestamp: new Date().toISOString(),
@@ -29,7 +35,7 @@ export default async function handler(req, res) {
     }
 
     // Ruta de login
-    if (req.method === 'POST' && req.url === '/auth/login') {
+    if (req.method === 'POST' && cleanPath === '/auth/login') {
       const { email, password } = req.body;
       
       console.log('Intento de login:', email);
@@ -109,7 +115,8 @@ export default async function handler(req, res) {
     return res.status(404).json({ 
       message: 'Ruta no encontrada', 
       method: req.method,
-      url: req.url 
+      url: req.url,
+      cleanPath: cleanPath
     });
 
   } catch (error) {
