@@ -1,119 +1,122 @@
-// Función principal para Vercel
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+// Función API para Vercel Serverless
+export default async function handler(req, res) {
+  // Headers CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-// Cargar variables de entorno
-dotenv.config();
+  // Manejar preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
-const app = express();
+  // Logging para debug
+  console.log('API llamada:', req.method, req.url);
+  console.log('Body:', req.body);
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Modelo Usuario simplificado
-const userSchema = new mongoose.Schema({
-  nombre: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  rol: { type: String, enum: ['admin', 'manager', 'usuario'], default: 'usuario' }
-});
-
-const Usuario = mongoose.model('Usuario', userSchema);
-
-// Conexión a MongoDB
-let isConnected = false;
-
-async function connectDB() {
-  if (isConnected) return;
-  
   try {
-    const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
-    console.log('Conectando a MongoDB...');
-    
-    await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+    // Ruta raíz - test
+    if (req.method === 'GET' && req.url === '/') {
+      return res.json({ 
+        message: 'API de control de personal Delizia funcionando',
+        timestamp: new Date().toISOString(),
+        env: {
+          nodeEnv: process.env.NODE_ENV,
+          hasMongoUri: !!process.env.MONGODB_URI,
+          hasJwtSecret: !!process.env.JWT_SECRET
+        }
+      });
+    }
+
+    // Ruta de login
+    if (req.method === 'POST' && req.url === '/auth/login') {
+      const { email, password } = req.body;
+      
+      console.log('Intento de login:', email);
+
+      // Verificar que tengamos las variables de entorno
+      if (!process.env.MONGODB_URI) {
+        return res.status(500).json({ 
+          error: 'MONGODB_URI no configurado',
+          env: Object.keys(process.env).filter(k => k.includes('MONGO'))
+        });
+      }
+
+      // Importar dependencias dinámicamente
+      const mongoose = await import('mongoose');
+      const bcrypt = await import('bcryptjs');
+      const jwt = await import('jsonwebtoken');
+
+      // Modelo Usuario
+      let Usuario;
+      try {
+        Usuario = mongoose.default.model('Usuario');
+      } catch {
+        const userSchema = new mongoose.default.Schema({
+          nombre: String,
+          email: String,
+          password: String,
+          rol: String
+        });
+        Usuario = mongoose.default.model('Usuario', userSchema);
+      }
+
+      // Conectar a MongoDB
+      if (mongoose.default.connection.readyState !== 1) {
+        await mongoose.default.connect(process.env.MONGODB_URI);
+        console.log('MongoDB conectado');
+      }
+
+      // Buscar usuario
+      const usuario = await Usuario.findOne({ email });
+      if (!usuario) {
+        console.log('Usuario no encontrado:', email);
+        return res.status(401).json({ message: 'Credenciales inválidas' });
+      }
+
+      // Verificar contraseña
+      const esValida = await bcrypt.default.compare(password, usuario.password);
+      if (!esValida) {
+        console.log('Contraseña incorrecta para:', email);
+        return res.status(401).json({ message: 'Credenciales inválidas' });
+      }
+
+      // Generar token
+      const token = jwt.default.sign(
+        { 
+          id: usuario._id, 
+          email: usuario.email, 
+          rol: usuario.rol 
+        },
+        process.env.JWT_SECRET || 'fallback_secret',
+        { expiresIn: '24h' }
+      );
+
+      console.log('Login exitoso para:', email);
+      
+      return res.json({
+        token,
+        usuario: {
+          id: usuario._id,
+          nombre: usuario.nombre,
+          email: usuario.email,
+          rol: usuario.rol
+        }
+      });
+    }
+
+    // Ruta no encontrada
+    return res.status(404).json({ 
+      message: 'Ruta no encontrada', 
+      method: req.method,
+      url: req.url 
     });
-    
-    isConnected = true;
-    console.log('MongoDB conectado exitosamente');
+
   } catch (error) {
-    console.error('Error conectando a MongoDB:', error);
-    throw error;
+    console.error('Error en API:', error);
+    return res.status(500).json({ 
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Error interno'
+    });
   }
 }
-
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'API de control de personal Delizia funcionando',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Ruta de login
-app.post('/auth/login', async (req, res) => {
-  try {
-    await connectDB();
-    
-    const { email, password } = req.body;
-    console.log('Intento de login:', email);
-
-    // Buscar usuario
-    const usuario = await Usuario.findOne({ email });
-    if (!usuario) {
-      console.log('Usuario no encontrado:', email);
-      return res.status(401).json({ message: 'Credenciales inválidas' });
-    }
-
-    // Verificar contraseña
-    const esValida = await bcrypt.compare(password, usuario.password);
-    if (!esValida) {
-      console.log('Contraseña incorrecta para:', email);
-      return res.status(401).json({ message: 'Credenciales inválidas' });
-    }
-
-    // Generar token
-    const token = jwt.sign(
-      { 
-        id: usuario._id, 
-        email: usuario.email, 
-        rol: usuario.rol 
-      },
-      process.env.JWT_SECRET || 'fallback_secret',
-      { expiresIn: '24h' }
-    );
-
-    console.log('Login exitoso para:', email);
-    
-    res.json({
-      token,
-      usuario: {
-        id: usuario._id,
-        nombre: usuario.nombre,
-        email: usuario.email,
-        rol: usuario.rol
-      }
-    });
-
-  } catch (error) {
-    console.error('Error en login:', error);
-    res.status(500).json({ 
-      message: 'Error interno del servidor',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
-
-// Manejar rutas no encontradas
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Ruta no encontrada', path: req.originalUrl });
-});
-
-// Exportar para Vercel
-module.exports = app;
