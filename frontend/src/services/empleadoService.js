@@ -5,8 +5,16 @@ const API_ENDPOINT = '/empleados';
 const empleadoService = {
   getAll: async (params = {}) => {
     try {
+      console.log('🔍 Llamando a empleados con params:', params);
+      console.log('🔍 URL completa:', axiosInstance.defaults.baseURL + API_ENDPOINT);
+      
       const response = await axiosInstance.get(API_ENDPOINT, { params });
-      console.log('Respuesta del backend (empleados):', response.data);
+      
+      console.log('✅ Respuesta completa del backend (empleados):', response);
+      console.log('✅ Status:', response.status);
+      console.log('✅ Headers:', response.headers);
+      console.log('✅ Data:', response.data);
+      
       // El backend devuelve { success, count, data, pagination }
       return {
         data: response.data.data || [],
@@ -14,14 +22,19 @@ const empleadoService = {
         pagination: response.data.pagination
       };
     } catch (error) {
-      console.error('Error en empleadoService.getAll:', error);
+      console.error('❌ Error completo en empleadoService.getAll:', error);
+      console.error('❌ Error response:', error.response);
+      console.error('❌ Error message:', error.message);
       throw error.response ? error.response.data : error;
     }
   },
   
   getById: async (id) => {
     try {
-      const response = await axiosInstance.get(`${API_ENDPOINT}/${id}`);
+      // Usar query parameter en lugar de ruta dinámica
+      const response = await axiosInstance.get(API_ENDPOINT, { 
+        params: { id } 
+      });
       return response.data.data || response.data;
     } catch (error) {
       console.error('Error en getById:', error);
@@ -40,7 +53,10 @@ const empleadoService = {
   
   update: async (id, empleado) => {
     try {
-      const response = await axiosInstance.put(`${API_ENDPOINT}/${id}`, empleado);
+      // Usar query parameter para el ID
+      const response = await axiosInstance.put(API_ENDPOINT, empleado, {
+        params: { id }
+      });
       return response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;
@@ -49,7 +65,9 @@ const empleadoService = {
   
   delete: async (id) => {
     try {
-      const response = await axiosInstance.delete(`${API_ENDPOINT}/${id}`);
+      const response = await axiosInstance.delete(API_ENDPOINT, {
+        params: { id }
+      });
       return response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;
