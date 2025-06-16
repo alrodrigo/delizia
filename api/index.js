@@ -15,8 +15,8 @@ export default async function handler(req, res) {
   console.log('Query:', req.query);
   console.log('Body:', req.body);
 
-  // La URL viene en req.url para Vercel functions, o podemos usar req.query para capturar parámetros
-  const path = req.url || '/';
+  // La ruta viene en req.query.path desde vercel.json
+  const path = req.query.path ? `/${req.query.path}` : req.url || '/';
   
   console.log('Path recibido:', path);
 
@@ -107,6 +107,72 @@ export default async function handler(req, res) {
           nombre: usuario.nombre,
           email: usuario.email,
           rol: usuario.rol
+        }
+      });
+    }
+
+    // Ruta de registro
+    if (req.method === 'POST' && path === '/auth/register') {
+      const { nombre, email, password } = req.body;
+      
+      console.log('Intento de registro:', email);
+
+      // Verificar que tengamos las variables de entorno
+      if (!process.env.MONGODB_URI) {
+        return res.status(500).json({ 
+          error: 'MONGODB_URI no configurado' 
+        });
+      }
+
+      // Importar dependencias dinámicamente
+      const mongoose = await import('mongoose');
+      const bcrypt = await import('bcryptjs');
+
+      // Conectar a MongoDB
+      if (mongoose.default.connection.readyState !== 1) {
+        await mongoose.default.connect(process.env.MONGODB_URI);
+      }
+
+      // Modelo Usuario
+      const UsuarioSchema = new mongoose.Schema({
+        nombre: { type: String, required: true },
+        email: { type: String, required: true, unique: true },
+        password: { type: String, required: true },
+        rol: { type: String, default: 'empleado' },
+        fechaCreacion: { type: Date, default: Date.now }
+      });
+
+      const Usuario = mongoose.models.Usuario || mongoose.model('Usuario', UsuarioSchema);
+
+      // Verificar si el usuario ya existe
+      const usuarioExistente = await Usuario.findOne({ email });
+      if (usuarioExistente) {
+        return res.status(400).json({ message: 'El usuario ya existe' });
+      }
+
+      // Hash de la contraseña
+      const salt = await bcrypt.default.genSalt(10);
+      const passwordHash = await bcrypt.default.hash(password, salt);
+
+      // Crear usuario
+      const nuevoUsuario = new Usuario({
+        nombre,
+        email,
+        password: passwordHash,
+        rol: 'empleado' // Por defecto los nuevos usuarios son empleados
+      });
+
+      await nuevoUsuario.save();
+
+      console.log('Usuario registrado exitosamente:', email);
+
+      return res.status(201).json({
+        message: 'Usuario creado exitosamente',
+        usuario: {
+          id: nuevoUsuario._id,
+          nombre: nuevoUsuario.nombre,
+          email: nuevoUsuario.email,
+          rol: nuevoUsuario.rol
         }
       });
     }
