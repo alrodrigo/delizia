@@ -12,17 +12,17 @@ export default async function handler(req, res) {
 
   // Logging para debug
   console.log('API llamada:', req.method, req.url);
+  console.log('Query:', req.query);
   console.log('Body:', req.body);
 
-  // Extraer la ruta desde el query de Vercel
-  const urlPath = req.url || '/';
-  const cleanPath = urlPath.startsWith('/') ? urlPath : '/' + urlPath;
+  // La URL viene en req.url para Vercel functions, o podemos usar req.query para capturar parámetros
+  const path = req.url || '/';
   
-  console.log('Clean path:', cleanPath);
+  console.log('Path recibido:', path);
 
   try {
     // Ruta raíz - test
-    if (req.method === 'GET' && (cleanPath === '/' || cleanPath === '')) {
+    if (req.method === 'GET' && path === '/') {
       return res.json({ 
         message: 'API de control de personal Delizia funcionando',
         timestamp: new Date().toISOString(),
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     }
 
     // Ruta de login
-    if (req.method === 'POST' && cleanPath === '/auth/login') {
+    if (req.method === 'POST' && path === '/auth/login') {
       const { email, password } = req.body;
       
       console.log('Intento de login:', email);
@@ -116,7 +116,8 @@ export default async function handler(req, res) {
       message: 'Ruta no encontrada', 
       method: req.method,
       url: req.url,
-      cleanPath: cleanPath
+      path: path,
+      query: req.query
     });
 
   } catch (error) {

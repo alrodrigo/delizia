@@ -3,7 +3,7 @@ async function testLoginAPI() {
   try {
     console.log('🔄 Probando API de login...');
     
-    const response = await fetch('https://delizia-g8p1vl7wl-alvaros-projects-fffd2a04.vercel.app/api/auth/login', {
+    const response = await fetch('https://delizia.vercel.app/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
