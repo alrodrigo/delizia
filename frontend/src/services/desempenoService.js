@@ -18,11 +18,16 @@ const desempenoService = {
   
   getById: async (id) => {
     try {
+      console.log('🔍 Obteniendo evaluación con ID:', id);
+      // Añadir timestamp para evitar caché
+      const timestamp = new Date().getTime();
       const response = await axiosInstance.get(API_ENDPOINT, { 
-        params: { id } 
+        params: { id, _t: timestamp } 
       });
+      console.log('📊 Datos de evaluación recibidos de la API:', response.data);
       return response.data.data || response.data;
     } catch (error) {
+      console.error('❌ Error obteniendo evaluación:', error);
       throw error.response ? error.response.data : error;
     }
   },

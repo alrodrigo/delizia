@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Box,
@@ -35,24 +35,48 @@ const PerfilEmpleado = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
 
-  useEffect(() => {
-    const fetchEmpleado = async () => {
-      try {
-        setLoading(true);
-        console.log('Cargando empleado con ID:', id);
-        const data = await empleadoService.getById(id);
-        console.log('Datos del empleado cargados:', data);
-        setEmpleado(data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error al cargar empleado:', err);
-        setError('No se pudo cargar la información del empleado');
-        setLoading(false);
-      }
-    };
-
-    fetchEmpleado();
+  // Función para cargar datos del empleado
+  const fetchEmpleado = useCallback(async () => {
+    try {
+      setLoading(true);
+      console.log('Cargando empleado con ID:', id);
+      // Añadir timestamp para evitar caché
+      const timestamp = new Date().getTime();
+      const data = await empleadoService.getById(id);
+      console.log(`Datos del empleado cargados (${timestamp}):`, data);
+      setEmpleado(data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error al cargar empleado:', err);
+      setError('No se pudo cargar la información del empleado');
+      setLoading(false);
+    }
   }, [id]);
+  
+  // Cargar datos al montar el componente o cambiar el ID
+  useEffect(() => {
+    fetchEmpleado();
+  }, [id, fetchEmpleado]);
+  
+  // Cargar datos al enfocar la ventana (cuando regresa de otra página)
+  useEffect(() => {
+    // Función para recargar datos cuando el usuario regresa a esta página
+    const handleFocus = () => {
+      console.log('🔄 Ventana enfocada, recargando datos del empleado...');
+      fetchEmpleado();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    // También podemos recargar cuando la ruta coincide exactamente con este perfil
+    if (window.location.pathname === `/empleados/${id}/perfil`) {
+      fetchEmpleado();
+    }
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [id, fetchEmpleado]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
