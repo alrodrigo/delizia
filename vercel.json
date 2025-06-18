@@ -7,29 +7,16 @@
       "config": {
         "distDir": "build"
       }
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
   ],
-  "functions": {
-    "api/*.js": {
-      "runtime": "@vercel/node@18"
-    }
-  },
   "routes": [
     {
-      "src": "/api/empleados-db",
-      "dest": "/api/empleados-db.js"
-    },
-    {
-      "src": "/api/empleados",
-      "dest": "/api/empleados.js"
-    },
-    {
-      "src": "/api/agencias",
-      "dest": "/api/agencias.js"
-    },
-    {
       "src": "/api/(.*)",
-      "dest": "/api/index.js?path=$1"
+      "dest": "/api/$1"
     },
     {
       "src": "/(.*)",
