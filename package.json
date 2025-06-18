@@ -2,6 +2,7 @@
   "name": "delizia-sistema-gestion",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "npm run build",
     "install": "cd frontend && npm install && cd ../backend && npm install",
@@ -12,6 +13,9 @@
     "concurrently": "^8.2.0"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mongodb": "^6.17.0",
     "mongoose": "^8.16.0",
     "node-fetch": "^3.3.2"
   }

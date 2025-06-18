@@ -10,11 +10,19 @@
     }
   ],
   "functions": {
-    "api/index.js": {
+    "api/*.js": {
       "runtime": "@vercel/node@18"
     }
   },
   "routes": [
+    {
+      "src": "/api/empleados",
+      "dest": "/api/empleados.js"
+    },
+    {
+      "src": "/api/agencias",
+      "dest": "/api/agencias.js"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js?path=$1"
