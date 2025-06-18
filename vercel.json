@@ -9,18 +9,23 @@
       }
     },
     {
-      "src": "api/**/*.js",
+      "src": "pages/api/**/*.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "dest": "/pages/api/$1"
     },
     {
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
-  ]
+  ],
+  "functions": {
+    "pages/api/**/*.js": {
+      "maxDuration": 10
+    }
+  }
 }

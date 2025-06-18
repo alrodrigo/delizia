@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = 'mongodb+srv://adelgadoq:EOt9BLdXCNmZWekA@cluster0.odu4rtq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = 'mongodb+srv://rodrigoorozco:MwAMgT4sT9JGNxeD@deliziacluster.3qgvb.mongodb.net/delizia?retryWrites=true&w=majority&appName=DeliziaCluster';
 
 async function testConnection() {
   try {
