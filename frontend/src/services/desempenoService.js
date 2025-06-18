@@ -53,11 +53,14 @@ const desempenoService = {
   
   update: async (id, desempeno) => {
     try {
+      console.log('🔄 Actualizando evaluación:', id, desempeno);
       const response = await axiosInstance.put(API_ENDPOINT, desempeno, {
         params: { id }
       });
+      console.log('✅ Respuesta actualización evaluación:', response.data);
       return response.data;
     } catch (error) {
+      console.error('❌ Error actualizando evaluación:', error);
       throw error.response ? error.response.data : error;
     }
   },

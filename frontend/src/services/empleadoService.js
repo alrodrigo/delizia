@@ -42,11 +42,14 @@ const empleadoService = {
   
   update: async (id, empleado) => {
     try {
+      console.log('🔄 Actualizando empleado:', id, empleado);
       const response = await axiosInstance.put(API_ENDPOINT, empleado, {
         params: { id }
       });
+      console.log('✅ Respuesta actualización:', response.data);
       return response.data;
     } catch (error) {
+      console.error('❌ Error actualizando empleado:', error);
       throw error.response ? error.response.data : error;
     }
   },
