@@ -6,7 +6,11 @@ const observacionService = {
   getAll: async (params = {}) => {
     try {
       const response = await axiosInstance.get(API_ENDPOINT, { params });
-      return response.data;
+      return {
+        data: response.data.data || [],
+        count: response.data.count || 0,
+        pagination: response.data.pagination
+      };
     } catch (error) {
       throw error.response ? error.response.data : error;
     }
@@ -14,8 +18,10 @@ const observacionService = {
   
   getById: async (id) => {
     try {
-      const response = await axiosInstance.get(`${API_ENDPOINT}/${id}`);
-      return response.data;
+      const response = await axiosInstance.get(API_ENDPOINT, { 
+        params: { id } 
+      });
+      return response.data.data || response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;
     }
@@ -24,9 +30,13 @@ const observacionService = {
   getByEmpleado: async (empleadoId) => {
     try {
       const response = await axiosInstance.get(API_ENDPOINT, { 
-        params: { empleadoId } 
+        params: { empleado: empleadoId } 
       });
-      return response.data;
+      return {
+        data: response.data.data || [],
+        count: response.data.count || 0,
+        pagination: response.data.pagination
+      };
     } catch (error) {
       throw error.response ? error.response.data : error;
     }
@@ -43,7 +53,9 @@ const observacionService = {
   
   update: async (id, observacion) => {
     try {
-      const response = await axiosInstance.put(`${API_ENDPOINT}/${id}`, observacion);
+      const response = await axiosInstance.put(API_ENDPOINT, observacion, {
+        params: { id }
+      });
       return response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;
@@ -52,7 +64,9 @@ const observacionService = {
   
   delete: async (id) => {
     try {
-      const response = await axiosInstance.delete(`${API_ENDPOINT}/${id}`);
+      const response = await axiosInstance.delete(API_ENDPOINT, {
+        params: { id }
+      });
       return response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;

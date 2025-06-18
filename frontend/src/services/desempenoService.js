@@ -1,13 +1,16 @@
-import axios from 'axios';
 import { axiosInstance } from './authService';
 
-const API_ENDPOINT = '/desempenos';
+const API_ENDPOINT = '/evaluaciones';
 
 const desempenoService = {
   getAll: async (params = {}) => {
     try {
       const response = await axiosInstance.get(API_ENDPOINT, { params });
-      return response.data;
+      return {
+        data: response.data.data || [],
+        count: response.data.count || 0,
+        pagination: response.data.pagination
+      };
     } catch (error) {
       throw error.response ? error.response.data : error;
     }
@@ -15,8 +18,10 @@ const desempenoService = {
   
   getById: async (id) => {
     try {
-      const response = await axiosInstance.get(`${API_ENDPOINT}/${id}`);
-      return response.data;
+      const response = await axiosInstance.get(API_ENDPOINT, { 
+        params: { id } 
+      });
+      return response.data.data || response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;
     }
@@ -24,9 +29,12 @@ const desempenoService = {
   
   getByEmpleado: async (empleadoId) => {
     try {
+      console.log('📊 Buscando evaluaciones para empleado:', empleadoId);
+      // Usar el parámetro empleado que espera la API
       const response = await axiosInstance.get(API_ENDPOINT, { 
-        params: { empleadoId } 
+        params: { empleado: empleadoId } 
       });
+      console.log('📊 Respuesta de evaluaciones:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error en getByEmpleado:', error);
@@ -45,7 +53,9 @@ const desempenoService = {
   
   update: async (id, desempeno) => {
     try {
-      const response = await axiosInstance.put(`${API_ENDPOINT}/${id}`, desempeno);
+      const response = await axiosInstance.put(API_ENDPOINT, desempeno, {
+        params: { id }
+      });
       return response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;
@@ -54,7 +64,9 @@ const desempenoService = {
   
   delete: async (id) => {
     try {
-      const response = await axiosInstance.delete(`${API_ENDPOINT}/${id}`);
+      const response = await axiosInstance.delete(API_ENDPOINT, {
+        params: { id }
+      });
       return response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;

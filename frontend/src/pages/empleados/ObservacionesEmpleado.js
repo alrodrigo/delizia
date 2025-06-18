@@ -11,10 +11,6 @@ import {
   Grid,
   Divider,
   Chip,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   IconButton,
   Dialog,
   DialogTitle,
@@ -72,7 +68,7 @@ const ObservacionesEmpleado = () => {
         
         // Obtener observaciones del empleado
         const observacionesData = await observacionService.getByEmpleado(id);
-        setObservaciones(Array.isArray(observacionesData.items) ? observacionesData.items : []);
+        setObservaciones(Array.isArray(observacionesData.data) ? observacionesData.data : []);
         
         setLoading(false);
       } catch (err) {

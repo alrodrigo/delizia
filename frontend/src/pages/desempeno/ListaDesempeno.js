@@ -54,11 +54,11 @@ const ListaDesempeno = () => {
         };
         
         const desempenosData = await desempenoService.getAll(params);
-        setDesempenos(desempenosData.items || []);
+        setDesempenos(desempenosData.data || []);
         setTotalItems(desempenosData.count || 0);
         
         // Obtener datos de empleados para mostrar nombres
-        const empleadosIds = desempenosData.items.map(d => d.empleado).filter(Boolean);
+        const empleadosIds = desempenosData.data?.map(d => d.empleado).filter(Boolean) || [];
         const uniqueEmpleadosIds = [...new Set(empleadosIds)];
         
         console.log('IDs de empleados a cargar:', uniqueEmpleadosIds);

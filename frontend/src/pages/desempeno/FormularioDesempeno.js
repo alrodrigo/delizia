@@ -66,7 +66,7 @@ const FormularioDesempeno = () => {
         
         // Cargar lista de empleados
         const empleadosResponse = await empleadoService.getAll();
-        setEmpleados(empleadosResponse.items || []);
+        setEmpleados(empleadosResponse.data || []);
         
         // Si estamos editando, cargar los datos del desempeño
         if (isEditing) {

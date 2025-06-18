@@ -64,11 +64,11 @@ const ListaObservaciones = () => {
         };
         
         const observacionesData = await observacionService.getAll(params);
-        setObservaciones(observacionesData.items || []);
+        setObservaciones(observacionesData.data || []);
         setTotalItems(observacionesData.count || 0);
         
         // Obtener datos de empleados para mostrar nombres
-        const empleadosIds = observacionesData.items.map(o => o.empleado).filter(Boolean);
+        const empleadosIds = observacionesData.data?.map(o => o.empleado).filter(Boolean) || [];
         const uniqueEmpleadosIds = [...new Set(empleadosIds)];
         
         const empleadosInfo = {};

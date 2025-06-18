@@ -5,15 +5,7 @@ const API_ENDPOINT = '/empleados';
 const empleadoService = {
   getAll: async (params = {}) => {
     try {
-      console.log('🔍 Llamando a empleados con params:', params);
-      console.log('🔍 URL completa:', axiosInstance.defaults.baseURL + API_ENDPOINT);
-      
       const response = await axiosInstance.get(API_ENDPOINT, { params });
-      
-      console.log('✅ Respuesta completa del backend (empleados):', response);
-      console.log('✅ Status:', response.status);
-      console.log('✅ Headers:', response.headers);
-      console.log('✅ Data:', response.data);
       
       // El backend devuelve { success, count, data, pagination }
       return {
@@ -22,16 +14,13 @@ const empleadoService = {
         pagination: response.data.pagination
       };
     } catch (error) {
-      console.error('❌ Error completo en empleadoService.getAll:', error);
-      console.error('❌ Error response:', error.response);
-      console.error('❌ Error message:', error.message);
+      console.error('Error en empleadoService.getAll:', error);
       throw error.response ? error.response.data : error;
     }
   },
   
   getById: async (id) => {
     try {
-      // Usar query parameter en lugar de ruta dinámica
       const response = await axiosInstance.get(API_ENDPOINT, { 
         params: { id } 
       });
@@ -53,7 +42,6 @@ const empleadoService = {
   
   update: async (id, empleado) => {
     try {
-      // Usar query parameter para el ID
       const response = await axiosInstance.put(API_ENDPOINT, empleado, {
         params: { id }
       });

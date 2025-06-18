@@ -6,7 +6,6 @@ const asistenciaService = {
   getAll: async (params = {}) => {
     try {
       const response = await axiosInstance.get(API_ENDPOINT, { params });
-      console.log('Respuesta del backend (asistencias):', response.data);
       // El backend devuelve { success, count, data, pagination }
       return {
         data: response.data.data || [],
@@ -21,8 +20,14 @@ const asistenciaService = {
   
   getByEmpleado: async (empleadoId) => {
     try {
-      const response = await axiosInstance.get(`${API_ENDPOINT}/empleado/${empleadoId}`);
-      return response.data.data || response.data;
+      const response = await axiosInstance.get(API_ENDPOINT, { 
+        params: { empleado: empleadoId } 
+      });
+      return {
+        data: response.data.data || [],
+        count: response.data.count || 0,
+        pagination: response.data.pagination
+      };
     } catch (error) {
       throw error.response ? error.response.data : error;
     }
@@ -30,7 +35,9 @@ const asistenciaService = {
   
   getById: async (id) => {
     try {
-      const response = await axiosInstance.get(`${API_ENDPOINT}/${id}`);
+      const response = await axiosInstance.get(API_ENDPOINT, { 
+        params: { id } 
+      });
       return response.data.data || response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;
@@ -48,7 +55,9 @@ const asistenciaService = {
   
   update: async (id, asistencia) => {
     try {
-      const response = await axiosInstance.put(`${API_ENDPOINT}/${id}`, asistencia);
+      const response = await axiosInstance.put(API_ENDPOINT, asistencia, {
+        params: { id }
+      });
       return response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;
@@ -57,7 +66,9 @@ const asistenciaService = {
   
   delete: async (id) => {
     try {
-      const response = await axiosInstance.delete(`${API_ENDPOINT}/${id}`);
+      const response = await axiosInstance.delete(API_ENDPOINT, {
+        params: { id }
+      });
       return response.data;
     } catch (error) {
       throw error.response ? error.response.data : error;
