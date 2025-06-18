@@ -1,6 +1,6 @@
 import { axiosInstance } from './authService';
 
-const API_ENDPOINT = '/empleados-db';
+const API_ENDPOINT = '/empleados';
 
 const empleadoService = {
   getAll: async (params = {}) => {
