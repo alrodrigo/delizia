@@ -16,6 +16,10 @@
   },
   "routes": [
     {
+      "src": "/api/empleados-db",
+      "dest": "/api/empleados-db.js"
+    },
+    {
       "src": "/api/empleados",
       "dest": "/api/empleados.js"
     },
